@@ -12,8 +12,8 @@ set BUILD_DIR=build
 set EXE_NAME=cdxr
 
 set INCLUDE_DIRS=/Isrc
-set SOURCE_FILES=src\main.cpp
-set LIBS=user32.lib dxgi.lib
+set SOURCE_FILES=src\main.cpp src\Renderer.cpp
+set LIBS=user32.lib dxgi.lib d3d12.lib
 
 if /I "%CONFIG%"=="debug" (
     echo Building in debug...
