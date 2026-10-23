@@ -19,11 +19,20 @@ void Renderer::init()
 
     create_device();
     create_cmd_list();
+    create_surface();
 }
 
 void Renderer::deinit()
 {
     factory_->Release();
+}
+
+void Renderer::draw()
+{
+    cmd_.list->OMSetRenderTargets(1, &surface_.handle, FALSE, nullptr);
+
+    FLOAT black_bg[4] = { 0.f, 0.f, 0.f, 1.f };
+    cmd_.list->ClearRenderTargetView(surface_.handle, black_bg, 0, nullptr);
 }
 
 void Renderer::create_device()
@@ -69,6 +78,41 @@ void Renderer::create_cmd_list()
 
     err = device_->CreateCommandList(0, type, cmd_.allocator, 0, IID_PPV_ARGS(&cmd_.list));
     ALWAYS_ASSERT(SUCCEEDED(err), "Failed to create command list");
+}
+
+void Renderer::create_surface()
+{
+    HRESULT err = S_OK;
+
+    surface_.desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    surface_.desc.Width = 1920;
+    surface_.desc.Height = 1080;
+    surface_.desc.DepthOrArraySize = 1;
+    surface_.desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    surface_.desc.SampleDesc.Count = 1;
+    surface_.desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+    D3D12_HEAP_PROPERTIES properties = {};
+    properties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+    D3D12_HEAP_FLAGS flags = D3D12_HEAP_FLAG_NONE;
+
+    err = device_->CreateCommittedResource(
+        &properties, flags,
+        &surface_.desc, D3D12_RESOURCE_STATE_RENDER_TARGET,
+        nullptr, IID_PPV_ARGS(&surface_.target));
+    ALWAYS_ASSERT(SUCCEEDED(err), "Failed to create render target");
+
+    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+    desc.NumDescriptors = 1;
+    desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+    err = device_->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&surface_.heap));
+    ALWAYS_ASSERT(SUCCEEDED(err), "Failed to allocate heap");
+
+    surface_.handle = surface_.heap->GetCPUDescriptorHandleForHeapStart();
+    device_->CreateRenderTargetView(surface_.target, nullptr, surface_.handle);
 }
 
 } // chaos

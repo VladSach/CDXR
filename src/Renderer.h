@@ -14,9 +14,12 @@ public:
     void init();
     void deinit();
 
+    void draw();
+
 private:
     void create_device();
     void create_cmd_list();
+    void create_surface();
 
 private:
     IDXGIFactory6 *factory_ = nullptr;
@@ -29,6 +32,14 @@ private:
         ID3D12CommandAllocator *allocator = nullptr;
         ID3D12GraphicsCommandList *list = nullptr;
     } cmd_;
+
+    struct Surface {
+        D3D12_RESOURCE_DESC desc = {};
+        ID3D12Resource *target = nullptr;
+
+        ID3D12DescriptorHeap *heap = nullptr;
+        D3D12_CPU_DESCRIPTOR_HANDLE handle = {};
+    } surface_;
 };
 
 } // chaos

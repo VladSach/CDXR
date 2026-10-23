@@ -5,9 +5,7 @@ i32 main()
     chaos::Renderer renderer;
     renderer.init();
 
-    // while (true) {
-    //     renderer.draw();
-    // }
+    renderer.draw();
 
     // renderer.deinit();
 
