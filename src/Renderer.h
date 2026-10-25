@@ -16,10 +16,15 @@ public:
 
     void draw();
 
+    void set_clear_color(f32 color);
+
 private:
     void create_device();
     void create_cmd_list();
     void create_surface();
+    void create_fence();
+
+    void write_to_file();
 
 private:
     IDXGIFactory6 *factory_ = nullptr;
@@ -40,6 +45,17 @@ private:
         ID3D12DescriptorHeap *heap = nullptr;
         D3D12_CPU_DESCRIPTOR_HANDLE handle = {};
     } surface_;
+
+    ID3D12Resource *readback_ = nullptr;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT rtfootprint_ = {};
+
+    struct Fence {
+        ID3D12Fence *fence = nullptr;
+        HANDLE handle = nullptr;
+        UINT64 value = 1;
+    } fence_;
+
+    f32 clear_color_ = .0f;
 };
 
 } // chaos
